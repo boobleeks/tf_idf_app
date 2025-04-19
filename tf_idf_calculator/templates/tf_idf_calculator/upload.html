@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>TF-IDF Анализ</title>
+    <link rel="stylesheet" href="{% static "tf_idf_calculator/styles.css" %}"
+</head>
+<body>
+
+<div class="appsize">
+<h2>TF-IDF Анализ</h2>
+
+<form method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+  {{ form }}
+  {% if form.file.errors %}
+  <div class="error">
+    {% for error in form.file.errors %}
+      <p>{{ error }}</p>
+    {% endfor %}
+  </div>
+{% endif %}
+  <button type="submit">Загрузить</button>
+</form>
+
+{% if words %}
+
+<div class="paginator">
+  <span class="current">
+    Страница {{ words.number }} из {{ words.paginator.num_pages }}.
+</span><br/>
+</div>
+  {% if docs and total_words %}
+  <p id="docs-count">Количество загруженных документов: {{docs}}</p>
+  <p id="docs-count">Количество слов: {{total_words}}</p>
+  {% endif %}
+  <table border="1">
+    <tr>
+      <th>№ Документа</th>
+      <th>Слово</th>
+      <th>TF (сколько раз)</th>
+      <th>IDF</th>
+      <th>TF*IDF</th>
+    </tr>
+    {% for item in words %}
+    <tr>
+      <td>{{ item.doc }}</td>
+      <td>{{ item.word }}</td>
+      <td>{{ item.tf }}</td>
+      <td>{{ item.idf }}</td>
+      <td>{{ item.tfidf }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  
+  <br/>
+    <div class="paginator">
+      <span class="step-links">
+          {% if words.has_previous %}
+              <a href="?page=1">&laquo; первый</a>
+              <a href="?page={{ words.previous_page_number }}">предыдущий</a>
+          {% endif %}
+  
+          <span class="current">
+              Страница {{ words.number }} из {{ words.paginator.num_pages }}.
+          </span>
+  
+          {% if words.has_next %}
+              <a href="?page={{ words.next_page_number }}">следующий</a>
+              <a href="?page={{ words.paginator.num_pages }}">последний &raquo;</a>
+          {% endif %}
+      </span>
+  </div>
+{% endif %}
+</div>
+<footer> 
+  <h6>With love by Gulom-Mirzo ❤️‍🔥</h6>
+</footer>  
+</body>
+</html>

@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    background-color: #000000;
+    color: #FFD700; 
+    padding: 20px 200px 0 200px;
+}
+
+
+h2 {
+    color: #FFD700;
+    text-align: center;
+}
+
+form {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+button {
+    background-color: #FFD700;
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 25px;
+}
+
+button:hover {
+    background-color: #FFC300;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #111;
+    color: #FFD700;
+    margin: auto;
+    margin-top: 30px;
+
+}
+
+th, td {
+    border: 1px solid #FFD700;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #222;
+}
+
+tr:nth-child(even) {
+    background-color: #1a1a1a;
+}
+
+tr:hover {
+    background-color: #333;
+}
+
+input {
+    padding: 5px;
+    border: 2px solid #ffffff;
+    border-radius: 6px;
+    background-color: #FFD700;
+    color: #333;
+    cursor: pointer;
+}
+
+.paginator {
+    display: grid;
+    place-items: center;
+    text-align: center;
+  }
+
+.paginator a {
+    color: white;
+    text-decoration: none;
+    border: 1px solid #FFD700;
+    border-radius: 5px;
+    padding: 5px;
+    margin-left: 5px;
+    font-size: 10px;
+    
+}
+
+.paginator a:hover {
+    color: #FFD700;
+    text-decoration: none;
+
+    
+}
+
+.current{
+    margin: 0, 15px, 0, 15px;
+}
+
+#docs-count{
+    width: 80%;
+    
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.appsize {
+    flex: 1;
+    padding: 20px;
+}
+
+footer {
+    background-color: #222;
+    color: white;
+    text-align: center;
+    margin-top: auto;
+}
+
+
+@media screen and (max-width: 1100px){
+    body {
+        padding: 0;
+    }
+}
