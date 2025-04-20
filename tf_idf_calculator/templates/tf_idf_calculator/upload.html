@@ -37,7 +37,7 @@
   {% endif %}
   <table border="1">
     <tr>
-      <th>№ Документа</th>
+      {% comment %} <th>№ Документа</th> {% endcomment %}
       <th>Слово</th>
       <th>TF (сколько раз)</th>
       <th>IDF</th>
@@ -45,7 +45,7 @@
     </tr>
     {% for item in words %}
     <tr>
-      <td>{{ item.doc }}</td>
+      {% comment %} <td>{{ item.doc }}</td> {% endcomment %}
       <td>{{ item.word }}</td>
       <td>{{ item.tf }}</td>
       <td>{{ item.idf }}</td>
