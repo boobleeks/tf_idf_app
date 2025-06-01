@@ -8,7 +8,7 @@ services:
       python manage.py makemigrations --noinput &&
       python manage.py migrate --noinput &&
       python manage.py collectstatic --noinput &&
-      gunicorn myproject.wsgi:application --bind 0.0.0.0:${APP_PORT}"
+      gunicorn tf_idf.wsgi:application --bind 0.0.0.0:${APP_PORT}"
     env_file: .env
     ports:
       - "${APP_PORT}:${APP_PORT}"
