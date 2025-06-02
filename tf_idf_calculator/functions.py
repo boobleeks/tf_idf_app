@@ -84,7 +84,7 @@ class TfidfComputer:
             for doc in self.docs:
                 if word in doc:
                     doc_count += 1
-            idf[word] = math.log((1 + self.N) / (1 + doc_count)) + 1
+            idf[word] = math.log((1 + self.N) / (1 + doc_count))
         return idf
 
     def stop_word_filter(self, document):
@@ -99,11 +99,11 @@ class TfidfComputer:
             filtered_doc = self.stop_word_filter(doc)
             total_words = len(filtered_doc)
             word_count = Counter(filtered_doc)
-            unique_words = set(filtered_doc)
+            unique_words = word_count.keys()
 
             for word in unique_words:
                 tf = word_count[word] / total_words
-                word_idf = idf[word]
+                word_idf = idf.get(word, 0)
                 tfidf = tf * word_idf
 
                 results.append({
