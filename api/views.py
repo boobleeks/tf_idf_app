@@ -123,14 +123,14 @@ class CollectionListView(generics.ListCreateAPIView):
 class CollectionDetailView(generics.RetrieveAPIView):
     serializer_class = CollectionSerializer
     permission_classes = [permissions.IsAuthenticated]
-    lookup_url_kwarg = 'collection_id'
+    
 
     def get_queryset(self):
         return Collection.objects.filter(owner=self.request.user)
 
 class CollectionStatisticsView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    lookup_url_kwarg = 'collection_id'
+    
 
     def get(self, request, *args, **kwargs):
         collection = self.get_object()

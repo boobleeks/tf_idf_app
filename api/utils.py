@@ -2,6 +2,9 @@ from collections import Counter
 import math
 from .models import Statistics
 
+
+
+#Path C:\Users\Gulom-Mirzo\Desktop\Ready Made Project Lesta\tf_idf_app\media
 def calculate_tf(text):
     words = text.lower().split()
     word_count = len(words)
