@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 import uuid
+import os
+
 
 
 class User(AbstractUser):
@@ -17,12 +19,12 @@ class Document(models.Model):
     
     @property
     def content(self):
-        """Чтение содержимого файла"""
         try:
-            with self.file.open('r') as f:
-                print(f.read().decode("utf-8"))
-                return f.read().decode("utf-8")
+            with open(self.file.path,'r', encoding="utf-8") as f:
+                content = f.read()
+                return content
         except:
+            print(f"Error reading file: {Exception}")
             return ""
 
     def __str__(self):
@@ -35,6 +37,20 @@ class Collection(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
+    @property
+    def content(self):
+        contents = []
+        for document in self.documents.all():
+            try:
+                # Assuming Document model has a 'file' FileField and 'content' property
+                contents.append(document.content)
+            except Exception as e:
+                print(f"Error reading document {document.id}: {str(e)}")
+                contents.append("")  # Add empty string if there's an error
+        
+        return "\n".join(contents)
+
+
     def __str__(self):
         return self.name
     
@@ -46,3 +62,4 @@ class Statistics(models.Model):
     
     class Meta:
         verbose_name_plural = "Statistics"
+    

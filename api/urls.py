@@ -21,8 +21,8 @@ urlpatterns = [
     path('collections/', CollectionListView.as_view()),
     path('collections/<int:pk>/', CollectionDetailView.as_view()),
     path('collections/<int:pk>/statistics/', CollectionStatisticsView.as_view()),
-    path('collection/<int:pk>/<uuid:doc_id>/', AddDocumentToCollectionView.as_view()),
-    path('collection/<int:pk>/<uuid:doc_id>/delete/', RemoveDocumentFromCollectionView.as_view()),
+    path('collections/<int:pk>/<uuid:doc_id>/', AddDocumentToCollectionView.as_view()),
+    path('collections/<int:pk>/<uuid:doc_id>/delete/', RemoveDocumentFromCollectionView.as_view()),
     
     ##### Пути для рега, лога и тд. пользователей #####
 
