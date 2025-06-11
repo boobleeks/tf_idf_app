@@ -16,6 +16,7 @@ from django.core.exceptions import PermissionDenied
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def getData(request):
+    '''Выдаёт статус состояние'''
     data = {
         'status': 'OK'
     }
@@ -138,7 +139,7 @@ class CollectionDetailView(generics.RetrieveAPIView):
 
 class CollectionStatisticsView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    
+     
 
     def get(self, request, *args, **kwargs):
         collection = self.get_object()
@@ -147,7 +148,7 @@ class CollectionStatisticsView(generics.RetrieveAPIView):
             statistics = calculate_collection_statistics(collection)
         if statistics:
             return Response(statistics.data)
-        return Response({"response":"no documents in collection"})
+        return Response({"response":"Нет документов в коллекцие!"})
         
 
     def get_queryset(self):
