@@ -11,7 +11,7 @@ from drf_yasg import openapi
 schema_view = get_schema_view(
    openapi.Info(
       title="API Docs",
-      default_version='v1',
+      default_version='v1.0.0',
       description="Tf-Idf App",
    ),
    public=True,

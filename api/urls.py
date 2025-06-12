@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (getData, RegisterView, LoginView, LogoutView, ChangePasswordView, DeleteUserView,
     DocumentListCreateView, DocumentDetailView, DocumentStatisticsView,
     CollectionListView, CollectionDetailView, CollectionStatisticsView,
-    AddDocumentToCollectionView, RemoveDocumentFromCollectionView)
+    AddDocumentToCollectionView, RemoveDocumentFromCollectionView, HuffmanAPIView)
 
 urlpatterns = [
     ##### Пути для статистики и прочего #####
@@ -12,9 +12,8 @@ urlpatterns = [
     ##### Пути для работы с документами #####
     
     path('documents/', DocumentListCreateView.as_view() ), # выдает список документов загруженных пользователем
-    path('documents/<uuid:doc_id>', DocumentDetailView.as_view() ), #выдаает содержимое документа, текст внутри
+    path('documents/<uuid:doc_id>', DocumentDetailView.as_view() ), #выдаает содержимое документа и удаляет документ по медотду DELETE, текст внутри content
     path('documents/<uuid:doc_id>/statistics', DocumentStatisticsView.as_view() ), #выдает статистику по данному документу (с учётом коллекции)
-    path('documents/<uuid:doc_id>/delete', DocumentDetailView.as_view()), #удаляет документ
 
     ##### Пути для работы с коллекциями #####
     
@@ -32,4 +31,8 @@ urlpatterns = [
     path('user/<int:user_id>/', ChangePasswordView.as_view(), name='change-password'),
     path('user/<int:user_id>/delete/', DeleteUserView.as_view(), name='delete-user'),
     
+    ##### КОД ХАФМАНА
+    path('documents/<uuid:doc_id>/huffman/', HuffmanAPIView.as_view(), name='document-huffman')
+
 ]
+

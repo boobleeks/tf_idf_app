@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Document, Collection, User
+from .models import Document, Collection, User, Statistics
 
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,3 +40,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
+
+
+class StatisticsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Statistics
+        fields = ['data']

@@ -4,19 +4,19 @@ from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.authtoken.views import ObtainAuthToken
 from django.contrib.auth import logout
-from .serializers import UserRegisterSerializer, ChangePasswordSerializer, DocumentSerializer, DocumentDetailSerializer, CollectionSerializer
+from .serializers import UserRegisterSerializer, ChangePasswordSerializer, DocumentSerializer, DocumentDetailSerializer, CollectionSerializer, StatisticsSerializer
 from .models import Document, Collection, Statistics
 from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
-
-
+from rest_framework.parsers import MultiPartParser, FormParser
+from drf_yasg.utils import swagger_auto_schema
 ############## Статистика рантайм и тд ##############################
 
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def getData(request):
-    '''Выдаёт статус состояние'''
+    '''Получение статуса приложения'''
     data = {
         'status': 'OK'
     }
@@ -25,11 +25,14 @@ def getData(request):
 ############### Рега Логаут и все такое ######################
 
 class RegisterView(generics.CreateAPIView):
+    '''Регистрация нового пользователя'''
     serializer_class = UserRegisterSerializer
     permission_classes = [permissions.AllowAny]
 
 class LoginView(ObtainAuthToken):
+    @swagger_auto_schema(operation_description="Аутентификация пользователя по логину и паролю")
     def post(self, request, *args, **kwargs):
+        '''Аутентификация пользователя по логину и паролю для получения токена'''
         serializer = self.serializer_class(data=request.data,
                                          context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -45,7 +48,7 @@ class LoginView(ObtainAuthToken):
 
 class LogoutView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    @swagger_auto_schema(operation_description="Выход пользователя и удаление токена")
     def get(self, request):
         request.user.auth_token.delete()
         logout(request)
@@ -58,10 +61,12 @@ class LogoutView(APIView):
             })
 
 class ChangePasswordView(generics.UpdateAPIView):
+    '''Смена пароля текущего пользователя'''
     serializer_class = ChangePasswordSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def update(self, request, *args, **kwargs):
+        
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
@@ -74,6 +79,7 @@ class ChangePasswordView(generics.UpdateAPIView):
         return Response(status=status.HTTP_200_OK)
 
 class DeleteUserView(generics.DestroyAPIView):
+    '''Удаление учетной записи пользователя'''
     permission_classes = [permissions.IsAuthenticated]
     
     def get_object(self):
@@ -84,36 +90,58 @@ class DeleteUserView(generics.DestroyAPIView):
 
 
 ############### Для работы с документами ##########################
-from .utils import calculate_statistics
+from .utils import calculate_statistics, huffman
+
+
+class HuffmanAPIView(APIView):
+    def get(self, request, doc_id):
+        document = get_object_or_404(Document, id=doc_id)
+        result = huffman(document.content)
+        return Response(result, status=status.HTTP_200_OK)
+
 
 class DocumentListCreateView(generics.ListCreateAPIView):
+    parser_classes = (MultiPartParser, FormParser)
     serializer_class = DocumentSerializer
     permission_classes = [permissions.IsAuthenticated]
     
+    @swagger_auto_schema(operation_description="Получить список загруженных пользователем документов")
     def get_queryset(self):
+        '''Получение списка загруженных документов'''
         return Document.objects.filter(owner=self.request.user)
     
+    @swagger_auto_schema(operation_description="Загрузить новый документ")
     def perform_create(self, serializer):
+        '''Добавление документа в список'''
         serializer.save(owner=self.request.user)
         calculate_statistics(serializer.instance)
+    
 
 class DocumentDetailView(generics.RetrieveDestroyAPIView):
+    '''Просмотр и удаление одного документа'''
     serializer_class = DocumentDetailSerializer
     permission_classes = [permissions.IsAuthenticated]
-    lookup_url_kwarg = 'doc_id' 
+    lookup_url_kwarg = 'doc_id'
+
     def get_queryset(self):
         return Document.objects.filter(owner=self.request.user)
 
-class DocumentStatisticsView(generics.RetrieveAPIView):
-    permission_classes = [permissions.IsAuthenticated]
-    lookup_url_kwarg = "doc_id"
+    @swagger_auto_schema(operation_description="Получить содержимое выбранного документа")
     def get(self, request, *args, **kwargs):
-        document = self.get_object()
+        return self.retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(operation_description="Удалить выбранный документ")
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+    
+class DocumentStatisticsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    @swagger_auto_schema(operation_description="Получить статистику по документу")
+    def get(self, request, doc_id):
+        '''Получение статистики документа'''
+        document = get_object_or_404(Document, id=doc_id, owner=request.user)
         statistics = Statistics.objects.filter(document=document).first()
         return Response(statistics.data if statistics else {})
-
-    def get_queryset(self):
-        return Document.objects.filter(owner=self.request.user)
 
 ########################## Для работы с коллекциями ###############################
 
@@ -133,26 +161,28 @@ class CollectionDetailView(generics.RetrieveAPIView):
     serializer_class = CollectionSerializer
     permission_classes = [permissions.IsAuthenticated]
     
-
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Collection.objects.none()
+        
         return Collection.objects.filter(owner=self.request.user)
 
 class CollectionStatisticsView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
-     
+    serializer_class = StatisticsSerializer
+    lookup_url_kwarg = 'pk'
 
-    def get(self, request, *args, **kwargs):
-        collection = self.get_object()
+    def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Collection.objects.none()
+        return Collection.objects.filter(owner=self.request.user)
+
+    def get_object(self):
+        collection = super().get_object()
         statistics = Statistics.objects.filter(collection=collection).first()
         if not statistics:
             statistics = calculate_collection_statistics(collection)
-        if statistics:
-            return Response(statistics.data)
-        return Response({"response":"Нет документов в коллекцие!"})
-        
-
-    def get_queryset(self):
-        return Collection.objects.filter(owner=self.request.user)
+        return statistics
 
 class AddDocumentToCollectionView(APIView):
     def post(self, request, pk, doc_id, *args, **kwargs):
@@ -193,14 +223,15 @@ class AddDocumentToCollectionView(APIView):
             )
         
 
-class RemoveDocumentFromCollectionView(generics.UpdateAPIView):
+class RemoveDocumentFromCollectionView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-    lookup_url_kwarg = 'collection_id'
-    def delete(self, request, *args, **kwargs):
-        collection = Collection.objects.get(id=kwargs['pk'], owner=request.user)
-        document = Document.objects.get(id=kwargs['doc_id'], owner=request.user)
-        
+    
+    def delete(self, request, pk, doc_id):
+        collection = get_object_or_404(Collection, id=pk, owner=request.user)
+        document = get_object_or_404(Document, id=doc_id, owner=request.user)
+
         collection.documents.remove(document)
         calculate_collection_statistics(collection)
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 

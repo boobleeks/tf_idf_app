@@ -67,3 +67,50 @@ def calculate_collection_statistics(collection):
     return statistics
 
 
+from collections import Counter
+import heapq
+
+class HuffmanNode:
+    def __init__(self, char=None, freq=0, left=None, right=None):
+        self.char = char
+        self.freq = freq
+        self.left = left
+        self.right = right
+
+    def __lt__(self, other):
+        return self.freq < other.freq
+
+
+def build_huffman_tree(text):
+    freq = Counter(text)
+    heap = [HuffmanNode(char=ch, freq=freq[ch]) for ch in freq]
+    heapq.heapify(heap)
+
+    while len(heap) > 1:
+        node1 = heapq.heappop(heap)
+        node2 = heapq.heappop(heap)
+        merged = HuffmanNode(freq=node1.freq + node2.freq, left=node1, right=node2)
+        heapq.heappush(heap, merged)
+
+    return heap[0] if heap else None
+
+
+def generate_codes(node, prefix="", codebook=None):
+    if codebook is None:
+        codebook = dict()
+    if node:
+        if node.char is not None:
+            codebook[node.char] = prefix or "0"
+        generate_codes(node.left, prefix + "0", codebook)
+        generate_codes(node.right, prefix + "1", codebook)
+    return codebook
+
+
+def huffman(text):
+    root = build_huffman_tree(text)
+    codebook = generate_codes(root)
+    encoded = ''.join(codebook[ch] for ch in text)
+    return {
+        "encoded": encoded,
+        "codes": codebook
+    }
