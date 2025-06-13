@@ -136,7 +136,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'tf_idf_calculator', 'static'),  
+    os.path.join(BASE_DIR, 'tf_idf_calculator', 'static', 'tf_idf_calculator'),  
 ]
 
 MEDIA_URL = '/media/'
