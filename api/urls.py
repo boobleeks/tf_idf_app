@@ -2,18 +2,19 @@ from django.urls import path
 from .views import (getData, RegisterView, LoginView, LogoutView, ChangePasswordView, DeleteUserView,
     DocumentListCreateView, DocumentDetailView, DocumentStatisticsView,
     CollectionListView, CollectionDetailView, CollectionStatisticsView,
-    AddDocumentToCollectionView, RemoveDocumentFromCollectionView, HuffmanAPIView)
+    AddDocumentToCollectionView, RemoveDocumentFromCollectionView, HuffmanAPIView, MetricsView, getVersion)
 
 urlpatterns = [
     ##### Пути для статистики и прочего #####
     
     path('status/', getData),
-
+    path('metrics/', MetricsView.as_view(), name='metrics'),
+    path('version/', getVersion),
     ##### Пути для работы с документами #####
     
     path('documents/', DocumentListCreateView.as_view() ), # выдает список документов загруженных пользователем
     path('documents/<uuid:doc_id>', DocumentDetailView.as_view() ), #выдаает содержимое документа и удаляет документ по медотду DELETE, текст внутри content
-    path('documents/<uuid:doc_id>/statistics', DocumentStatisticsView.as_view() ), #выдает статистику по данному документу (с учётом коллекции)
+    path('documents/<uuid:doc_id>/statistics', DocumentStatisticsView.as_view() ),
 
     ##### Пути для работы с коллекциями #####
     

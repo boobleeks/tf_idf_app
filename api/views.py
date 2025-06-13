@@ -11,6 +11,12 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from rest_framework.parsers import MultiPartParser, FormParser
 from drf_yasg.utils import swagger_auto_schema
+from .decorators import track_processing_time
+from .metrics import get_metrics
+import re
+from collections import Counter
+import os
+
 ############## Статистика рантайм и тд ##############################
 
 @api_view(['GET'])
@@ -21,6 +27,50 @@ def getData(request):
         'status': 'OK'
     }
     return Response(data)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def getVersion(request):
+    '''Получение версии приложения'''
+    data = {
+        'version': '1.0.0' #os.getenv("APP_VERSION")
+    }
+    return Response(data)
+
+class MetricsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        documents = Document.objects.filter(owner=request.user)
+        collections = Collection.objects.filter(owner=request.user)
+
+        documents_total = documents.count()
+        total_length = sum(len(doc.content or '') for doc in documents)
+        average_document_length = total_length / documents_total if documents_total > 0 else 0
+
+        all_words = []
+        for doc in documents:
+            content = doc.content or ''
+            words = re.findall(r'\b\w+\b', content.lower())
+            all_words.extend(words)
+
+        word_counts = Counter(all_words)
+        most_common_words = [word for word, _ in word_counts.most_common(10)]
+        rarest_words = [word for word, count in word_counts.items() if count == 1][:10]
+
+        documents_per_collection = {
+        collection.name: collection.documents.count() for collection in collections
+    }
+        extra_metrics = get_metrics()
+        return Response({
+        "documents_total": documents_total,
+        "average_document_length": round(average_document_length, 2),
+        "most_common_words": most_common_words,
+        "rarest_words": rarest_words,
+        "documents_per_collection": documents_per_collection,
+        "processing_metrics": extra_metrics
+    })
 
 ############### Рега Логаут и все такое ######################
 
@@ -110,7 +160,9 @@ class DocumentListCreateView(generics.ListCreateAPIView):
         '''Получение списка загруженных документов'''
         return Document.objects.filter(owner=self.request.user)
     
+
     @swagger_auto_schema(operation_description="Загрузить новый документ")
+    @track_processing_time
     def perform_create(self, serializer):
         '''Добавление документа в список'''
         serializer.save(owner=self.request.user)
@@ -177,6 +229,7 @@ class CollectionStatisticsView(generics.RetrieveAPIView):
             return Collection.objects.none()
         return Collection.objects.filter(owner=self.request.user)
 
+    @track_processing_time
     def get_object(self):
         collection = super().get_object()
         statistics = Statistics.objects.filter(collection=collection).first()
