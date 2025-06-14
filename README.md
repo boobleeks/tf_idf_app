@@ -129,9 +129,9 @@ docker-compose up --build
 +-------------------+       +-------------------+       +-------------------+
 | id (PK)           |       | id (PK, UUID)     |       | id (PK)           |
 | username          |<----->| owner (FK)        |<----->| owner (FK)        |
-| email             |       | title             |       | name              |
-| password          |       | file              |       | created_at        |
-| ...               |       | created_at        |       | updated_at        |
+| password          |       | title             |       | name              |
+|                   |       | file              |       | created_at        |
+|                   |       | created_at        |       | updated_at        |
 |                   |       | updated_at        |       |                   |
 +-------------------+       +-------------------+       +-------------------+
                                     ^                           ^
@@ -152,15 +152,15 @@ docker-compose up --build
 
 User (наследуется от AbstractUser) - центральная модель для аутентификации
 
-###Document:
+### Document:
 Имеет ForeignKey к User (owner)
 Связан с Collection через ManyToManyField (через промежуточную таблицу documents)
 
-###Collection:
+### Collection:
 Имеет ForeignKey к User (owner)
 Связан с Document через ManyToManyField
 
-###Statistics:
+### Statistics:
 Имеет ForeignKey как к Document, так и к Collection (может быть связана с одним из них)
 Содержит JSON-данные
 
