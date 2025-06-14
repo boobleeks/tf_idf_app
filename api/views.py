@@ -15,7 +15,7 @@ from .decorators import track_processing_time
 from .metrics import get_metrics
 import re
 from collections import Counter
-import os
+from .version import __version__
 
 ############## Статистика рантайм и тд ##############################
 
@@ -34,7 +34,7 @@ def getData(request):
 def getVersion(request):
     '''Получение версии приложения'''
     data = {
-        'version': '1.0.0' #os.getenv("APP_VERSION")
+        'version': __version__
     }
     return Response(data)
 
