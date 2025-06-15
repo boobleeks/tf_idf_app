@@ -39,11 +39,13 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
+      - ./certbot/log:/var/log/letsencrypt
     entrypoint: /bin/sh -c
     command: >
-      "certbot certonly --webroot --webroot-path=/var/www/certbot
+       certbot certonly --webroot --webroot-path=/var/www/certbot
        --email abdugaforovvv@gmail.com --agree-tos --no-eff-email
-       -d gulom-mirzo.uz"
+       -d gulom-mirzo.uz -d www.gulom-mirzo.uz
+
 
 volumes:
   postgres_data:
