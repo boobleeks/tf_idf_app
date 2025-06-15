@@ -22,6 +22,8 @@ h2 {
     text-align: center;
 }
 
+
+
 form {
     margin-bottom: 20px;
     text-align: center;
@@ -121,6 +123,12 @@ input {
 .appsize {
     flex: 1;
     padding: 20px;
+}
+
+.appsize a{
+    color: white;
+    text-decoration: none;
+    
 }
 
 footer {

@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    ##### установленные сторонние пакеты
     'rest_framework',
     'rest_framework.authtoken',
     'api',
@@ -60,6 +62,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'tf_idf.urls'
+
+
+
 
 TEMPLATES = [
     {
